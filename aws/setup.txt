@@ -2,16 +2,10 @@
 
 # update
 sudo apt update
-sudo apt upgrade
+sudo apt -y upgrade
 
 # install mysql
 sudo apt -y install mysql-server
-
-# download sakila db
-wget https://downloads.mysql.com/docs/sakila-db.tar.gz
-
-# unzip sakila db
-tar -xzf sakila-db.tar.gz
 
 # install sysbench
 curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh | sudo bash

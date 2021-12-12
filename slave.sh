@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo mysql -e "CHANGE MASTER TO MASTER_HOST='10.84.15.10', MASTER_USER='slave', MASTER_PASSWORD='Passwordslave1%', MASTER_LOG_FILE='mysql-bin.000002', MASTER_LOG_POS=690"
