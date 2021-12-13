@@ -47,22 +47,21 @@ def process_request(request):
     return 'Request not recognized'
 
 def select_connection():
-    match mode:
-        case 'direct hit':
-            return master_connection
-        case 'random':
-            return random.choice(connections)
-        case 'ping':
-            responses = {}
+    if mode == 'direct hit':
+        return master_connection
+    if mode == 'random':
+        return random.choice(connections)
+    if mode == 'ping':
+        responses = {}
 
-            for con in connections:
-                response = ping(con.server_host)
-                responses[con.server_host]=response.rtt_avg
+        for con in connections:
+            response = ping(con.server_host)
+            responses[con.server_host]=response.rtt_avg
 
-            fastest_host = min(responses, key=responses.get)
+        fastest_host = min(responses, key=responses.get)
 
-            con = list(filter(lambda connection: connection.server_host == fastest_host, connections))[0]
-            return con
+        con = list(filter(lambda connection: connection.server_host == fastest_host, connections))[0]
+        return con
 
     return master_connection
 
