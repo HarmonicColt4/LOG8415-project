@@ -76,6 +76,10 @@ def read_operation(connection):
 async def handle_requests(reader, writer):
     while True:
         data = await reader.read(1024)
+
+        if not data:
+            break
+
         request = data.decode()
 
         response = process_request(request)
@@ -83,6 +87,9 @@ async def handle_requests(reader, writer):
         data = response.encode()
         writer.write(data)
         await writer.drain()
+
+    writer.close()
+    await writer.wait_closed()
 
 async def main():
     server = await asyncio.start_server(

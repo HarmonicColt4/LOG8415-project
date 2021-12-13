@@ -1,6 +1,6 @@
 import asyncio
 
-HOST = '127.0.0.1'  # The server's hostname or IP address
+HOST = '3.84.239.134'  # The server's hostname or IP address
 PORT = 5001        # The port used by the server
 
 async def tcp_client():
@@ -8,7 +8,7 @@ async def tcp_client():
 
     user_input = input('Send: ')
 
-    while user_input != 'stop':
+    while user_input != '':
         writer.write(user_input.encode())
         await writer.drain()
 
