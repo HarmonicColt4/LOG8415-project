@@ -26,27 +26,25 @@ connections = slave_connections + [master_connection]
 
 def process_request(request):
     global mode
-    match request:
-        case 'read':
-            connection = select_connection()
-            read_operation(connection)
-            return 'Read operation completed'
+    if request == 'read':
+        connection = select_connection()
+        read_operation(connection)
+        return 'Read operation completed'
 
-        case 'direct hit':
-            mode = 'direct hit'
-            return 'Proxy mode changed to \'direct hit\''
-        case 'random':
-            mode = 'random'
-            return 'Proxy mode changed to \'random\''
-        case 'ping':
-            mode = 'ping'
-            return 'Proxy mode changed to \'ping\''
+    if request == 'direct hit':
+        mode = 'direct hit'
+        return 'Proxy mode changed to \'direct hit\''
+    if request == 'random':
+        mode = 'random'
+        return 'Proxy mode changed to \'random\''
+    if request == 'ping':
+        mode = 'ping'
+        return 'Proxy mode changed to \'ping\''
 
-        case 'print':
-            return mode
+    if request == 'print':
+        return mode
 
-        case _:
-            return 'Request not recognized'
+    return 'Request not recognized'
 
 def select_connection():
     match mode:
