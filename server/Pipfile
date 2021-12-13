@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 mysql-connector-python = "*"
 pythonping = "*"
-boto3 = {extras = ["crt"], version = "*"}
 
 [dev-packages]
 
