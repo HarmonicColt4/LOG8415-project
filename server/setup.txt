@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# update
+sudo apt update
+sudo apt -y upgrade
+
+# install pip
+sudo apt install -y python3-pip
+
+# clone repo
+git clone https://github.com/HarmonicColt4/LOG8415-project.git
+
+# install requirements.txt
