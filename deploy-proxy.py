@@ -103,7 +103,7 @@ def create_cluster_instances():
 
     user_data = ''
     
-    with open('setup.txt', 'r') as reader:
+    with open('cluster-user-data/master.txt', 'r') as reader:
         user_data = reader.read()
 
     ec2.run_instances(
@@ -117,6 +117,7 @@ def create_cluster_instances():
         ],
         SubnetId=subnet_id,
         UserData=user_data,
+        PrivateIpAddress='10.84.15.10',
         TagSpecifications=[
             {
                 'ResourceType': 'instance',
@@ -130,29 +131,32 @@ def create_cluster_instances():
         ],
     )
 
-    ec2.run_instances(
-        ImageId='ami-04505e74c0741db8d',
-        InstanceType='t2.micro',
-        KeyName='mysql',
-        MaxCount=3,
-        MinCount=3,
-        SecurityGroupIds=[
-            sg_id,
-        ],
-        SubnetId=subnet_id,
-        UserData=user_data,
-        TagSpecifications=[
-            {
-                'ResourceType': 'instance',
-                'Tags': [
-                    {
-                        'Key': 'Name',
-                        'Value': 'slave',
-                    },
-                ],
-            },
-        ],
-    )
+    for i in range(1,4):
+        with open(f'cluster-user-data/slave{i}.txt', 'r') as reader:
+            user_data = reader.read()
+        ec2.run_instances(
+            ImageId='ami-04505e74c0741db8d',
+            InstanceType='t2.micro',
+            KeyName='mysql',
+            MaxCount=1,
+            MinCount=1,
+            SecurityGroupIds=[
+                sg_id,
+            ],
+            SubnetId=subnet_id,
+            UserData=user_data,
+            TagSpecifications=[
+                {
+                    'ResourceType': 'instance',
+                    'Tags': [
+                        {
+                            'Key': 'Name',
+                            'Value': 'slave',
+                        },
+                    ],
+                },
+            ],
+        )
 
 def create_vpc():
     vpc = ec2.create_vpc(CidrBlock='10.84.0.0/16')
@@ -244,5 +248,5 @@ def get_subnet_sg_ids():
     return subnet_id, sg_id
 
 
-deploy_proxy()
 deploy_cluster()
+#deploy_proxy()

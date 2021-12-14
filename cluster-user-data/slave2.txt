@@ -7,12 +7,6 @@ sudo apt -y upgrade
 # install mysql
 sudo apt -y install mysql-server
 
-# install sakilla db
-sudo wget http://downloads.mysql.com/docs/sakila-db.tar.gz
-sudo tar xzf sakila-db.tar.gz -C /tmp/
-sudo mysql -e "SOURCE /tmp/sakila-db/sakila-schema.sql;"
-sudo mysql -e "SOURCE /tmp/sakila-db/sakila-data.sql;"
-
 # install sysbench
 curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh | sudo bash
 sudo apt -y install sysbench
@@ -22,3 +16,14 @@ sudo mysql -e "SET PASSWORD FOR root@localhost = PASSWORD('password');FLUSH PRIV
 sudo mysql -e "DELETE FROM mysql.user WHERE User='';"
 sudo mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
 sudo mysql -e "DROP DATABASE test;DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';"
+
+# configure slave node
+git clone https://github.com/HarmonicColt4/LOG8415-project.git
+
+sudo cp LOG8415-project/mysql-config-files/slave2-mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf
+
+sudo systemctl restart mysql
+
+sudo mysql -e "STOP SLAVE;"
+sudo mysql -e "CHANGE MASTER TO MASTER_HOST='10.84.15.10', MASTER_USER='slave', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=156"
+sudo mysql -e "START SLAVE;"
