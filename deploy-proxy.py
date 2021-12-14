@@ -63,7 +63,7 @@ def deploy_proxy():
         
         client.run_instances(
             ImageId='ami-04505e74c0741db8d',
-            InstanceType='t2.micro',
+            InstanceType='t2.large',
             KeyName='mysql',
             MaxCount=1,
             MinCount=1,
@@ -132,7 +132,7 @@ def create_cluster_instances():
         ],
     )
 
-    for i in range(1,2):
+    for i in range(1,4):
         with open(f'cluster-user-data/slave{i}.txt', 'r') as reader:
             user_data = reader.read()
         client.run_instances(

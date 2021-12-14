@@ -25,5 +25,5 @@ sudo cp LOG8415-project/mysql-config-files/slave2-mysqld.cnf /etc/mysql/mysql.co
 sudo systemctl restart mysql
 
 sudo mysql -e "STOP SLAVE;"
-sudo mysql -e "CHANGE MASTER TO MASTER_HOST='10.84.15.10', MASTER_USER='slave', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=156"
+sudo mysql -e "CHANGE MASTER TO MASTER_HOST='10.84.15.10', MASTER_USER='slave', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=661"
 sudo mysql -e "START SLAVE;"
