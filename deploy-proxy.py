@@ -1,10 +1,11 @@
 import boto3
 
-ec2 = boto3.client('ec2')
+client = boto3.client('ec2')
+ec2 = boto3.resource('ec2')
 
 def deploy_cluster():
     # get instances
-    response = ec2.describe_instances(
+    response = client.describe_instances(
         Filters=[
             {
                 'Name': 'tag:Name',
@@ -29,14 +30,14 @@ def deploy_cluster():
         instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'stopped']
 
         if len(instances_ids) > 0:
-            ec2.start_instances(InstanceIds=instances_ids)
+            client.start_instances(InstanceIds=instances_ids)
             print('Starting cluster')
 
         else:
             print('Cluster already running')
 
 def deploy_proxy():
-    response = ec2.describe_instances(
+    response = client.describe_instances(
         Filters=[
             {
                 'Name': 'tag:Name',
@@ -60,9 +61,9 @@ def deploy_proxy():
         with open('proxy/setup.txt', 'r') as reader:
             user_data = reader.read()
         
-        ec2.run_instances(
+        client.run_instances(
             ImageId='ami-04505e74c0741db8d',
-            InstanceType='t2.large',
+            InstanceType='t2.micro',
             KeyName='mysql',
             MaxCount=1,
             MinCount=1,
@@ -92,7 +93,7 @@ def deploy_proxy():
 
         if len(instances_id) > 0:
             print('Starting proxy')
-            ec2.start_instances(InstanceIds=instances_id)
+            client.start_instances(InstanceIds=instances_id)
 
         else:
             print('Proxy already running')
@@ -106,7 +107,7 @@ def create_cluster_instances():
     with open('cluster-user-data/master.txt', 'r') as reader:
         user_data = reader.read()
 
-    ec2.run_instances(
+    client.run_instances(
         ImageId='ami-04505e74c0741db8d',
         InstanceType='t2.micro',
         KeyName='mysql',
@@ -131,10 +132,10 @@ def create_cluster_instances():
         ],
     )
 
-    for i in range(1,4):
+    for i in range(1,2):
         with open(f'cluster-user-data/slave{i}.txt', 'r') as reader:
             user_data = reader.read()
-        ec2.run_instances(
+        client.run_instances(
             ImageId='ami-04505e74c0741db8d',
             InstanceType='t2.micro',
             KeyName='mysql',
@@ -145,6 +146,7 @@ def create_cluster_instances():
             ],
             SubnetId=subnet_id,
             UserData=user_data,
+            PrivateIpAddress=f'10.84.15.1{i}',
             TagSpecifications=[
                 {
                     'ResourceType': 'instance',
@@ -166,8 +168,8 @@ def create_vpc():
     vpc.wait_until_available()
 
     # enable public dns hostname
-    ec2.modify_vpc_attribute( VpcId = vpc.id , EnableDnsSupport = { 'Value': True } )
-    ec2.modify_vpc_attribute( VpcId = vpc.id , EnableDnsHostnames = { 'Value': True } )
+    client.modify_vpc_attribute( VpcId = vpc.id , EnableDnsSupport = { 'Value': True } )
+    client.modify_vpc_attribute( VpcId = vpc.id , EnableDnsHostnames = { 'Value': True } )
 
     # create an internet gateway and attach it to VPC
     internetgateway = ec2.create_internet_gateway()
@@ -179,8 +181,12 @@ def create_vpc():
 
     # create subnet and associate it with route table
     subnet = ec2.create_subnet(CidrBlock='10.84.15.0/24', VpcId=vpc.id)
-    subnet.map_public_ip_on_launch = True
-    subnet.load()
+    client.modify_subnet_attribute(
+        SubnetId=subnet.id,
+        MapPublicIpOnLaunch={
+            'Value': True
+        },
+    )
     routetable.associate_with_subnet(SubnetId=subnet.id)
 
     return vpc
@@ -198,7 +204,7 @@ def get_subnet_sg_ids():
     subnet_id = ''
     sg_id = ''
 
-    response = ec2.describe_vpcs(
+    response = client.describe_vpcs(
     Filters=[
         {
             'Name': 'tag:Name',
@@ -212,12 +218,14 @@ def get_subnet_sg_ids():
     if len(response['Vpcs']) == 0:
         vpc = create_vpc()
 
-        subnet_id = vpc.subnets[0].id
+        subnet = list(vpc.subnets.all())[0]
+
+        subnet_id = subnet.id
 
     else:
         vpc_id = response['Vpcs'][0]['VpcId']
 
-        response = ec2.describe_subnets(
+        response = client.describe_subnets(
         Filters=[
             {
                 'Name': 'vpc-id',
@@ -229,7 +237,7 @@ def get_subnet_sg_ids():
 
         subnet_id = response['Subnets'][0]['SubnetId']
 
-    response = ec2.describe_security_groups(
+    response = client.describe_security_groups(
     Filters=[
         {
             'Name': 'group-name',
@@ -251,4 +259,4 @@ def get_subnet_sg_ids():
 
 
 deploy_cluster()
-#deploy_proxy()
+deploy_proxy()

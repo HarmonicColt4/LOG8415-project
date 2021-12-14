@@ -12,15 +12,15 @@ from pythonping import ping
 HOST = ''
 PORT = 5001
 
-MASTER_IP = '18.215.35.148'
-node_ips = [MASTER_IP, '3.219.0.192', '54.209.67.21', '54.221.209.119']
+MASTER_IP = '10.84.25.10'
+node_ips = [MASTER_IP, '10.84.25.11', '10.84.25.12', '10.84.25.13']
 mode = 'direct hit'
 
 # MySQL - open connections and slaves
-master_connection = mysql.connector.connect(user='test', password='password', host=MASTER_IP)
+master_connection = mysql.connector.connect(user='test', password='password', host=MASTER_IP, database='project')
 
-slave_connections = [mysql.connector.connect(user='test', password='password',
-                              host=slave_ip) for slave_ip in node_ips if slave_ip != MASTER_IP]
+slave_connections = [mysql.connector.connect(user='test', password='password', host=slave_ip, database='project')
+                              for slave_ip in node_ips if slave_ip != MASTER_IP]
 
 connections = slave_connections + [master_connection]
 

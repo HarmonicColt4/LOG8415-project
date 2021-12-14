@@ -24,6 +24,6 @@ sudo mysql -e "GRANT REPLICATION SLAVE on *.* to 'slave'@'%'"
 
 git clone https://github.com/HarmonicColt4/LOG8415-project.git
 
-sudo cp LOG8415-project/master-mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo cp LOG8415-project/mysql-config-files/master-mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf
 
 sudo systemctl restart mysql
