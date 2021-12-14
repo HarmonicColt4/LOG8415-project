@@ -2,25 +2,44 @@ import mysql.connector
 import random
 import asyncio
 from pythonping import ping
-
-# TODO use boto3 to get ip addresses of nodes
-# TODO Proxy - direct hit (master read and write)
-# TODO Proxy - random selection (master write and read from all nodes)
-# TODO Proxy - custom (master write and read from shortest ping node)
-# TODO Socket
+import boto3
 
 HOST = ''
 PORT = 5001
 
-MASTER_IP = '10.84.25.10'
-node_ips = [MASTER_IP, '10.84.25.11', '10.84.25.12', '10.84.25.13']
+client = boto3.client('ec2')
+
+master_filters = [
+        {
+            'Name': 'tag:Name',
+            'Values': [
+                'master'
+            ]
+        }
+    ]
+
+slave_filters = [
+        {
+            'Name': 'tag:Name',
+            'Values': [
+                'slave'
+            ]
+        }
+    ]
+
+master_instance_response = client.describe_instances( Filters=master_filters )
+slave_instances_response = client.describe_instances( Filters=slave_filters )
+
+master_ip = [i['PublicIpAddress'] for r in master_instance_response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
+slave_ips = [i['PublicIpAddress'] for r in slave_instances_response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running']
+
 mode = 'direct hit'
 
 # MySQL - open connections and slaves
-master_connection = mysql.connector.connect(user='test', password='password', host=MASTER_IP, database='project')
+master_connection = mysql.connector.connect(user='proxy', password='password', host=master_ip, database='project')
 
-slave_connections = [mysql.connector.connect(user='test', password='password', host=slave_ip, database='project')
-                              for slave_ip in node_ips if slave_ip != MASTER_IP]
+slave_connections = [mysql.connector.connect(user='proxy', password='password', host=slave_ip, database='project')
+                              for slave_ip in slave_ips]
 
 connections = slave_connections + [master_connection]
 
