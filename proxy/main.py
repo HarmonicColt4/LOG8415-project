@@ -36,9 +36,9 @@ slave_ips = [i['PublicIpAddress'] for r in slave_instances_response['Reservation
 mode = 'direct hit'
 
 # MySQL - open connections and slaves
-master_connection = mysql.connector.connect(user='proxy', password='password', host=master_ip, database='project', connection_timeout=0)
+master_connection = mysql.connector.connect(user='proxy', password='password', host=master_ip, database='project')
 
-slave_connections = [mysql.connector.connect(user='proxy', password='password', host=slave_ip, database='project', connection_timeout=0)
+slave_connections = [mysql.connector.connect(user='proxy', password='password', host=slave_ip, database='project')
                               for slave_ip in slave_ips]
 
 connections = slave_connections + [master_connection]
