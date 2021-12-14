@@ -90,11 +90,9 @@ def deploy_proxy():
         # get instance ids
         instances_id = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'stopped']
 
-        print(instances_id)
-
         if len(instances_id) > 0:
-            ec2.start_instances(InstanceIds=instances_id[0])
             print('Starting proxy')
+            ec2.start_instances(InstanceIds=instances_id)
 
         else:
             print('Proxy already running')
