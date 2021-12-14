@@ -1,6 +1,20 @@
 import asyncio
+import boto3
 
-HOST = '3.84.239.134'  # The server's hostname or IP address
+client = boto3.client('ec2')
+
+response = client.describe_instances( Filters=[
+        {
+            'Name': 'tag:Name',
+            'Values': [
+                'proxy'
+            ]
+        }
+    ])
+
+proxy_ip = [i['PublicIpAddress'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
+
+HOST = proxy_ip  # The server's hostname or IP address
 PORT = 5001        # The port used by the server
 
 async def tcp_client():
