@@ -179,6 +179,8 @@ def create_vpc():
 
     # create subnet and associate it with route table
     subnet = ec2.create_subnet(CidrBlock='10.84.15.0/24', VpcId=vpc.id)
+    subnet.map_public_ip_on_launch = True
+    subnet.load()
     routetable.associate_with_subnet(SubnetId=subnet.id)
 
     return vpc
