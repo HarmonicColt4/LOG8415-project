@@ -72,6 +72,7 @@ def deploy_proxy():
             ],
             SubnetId=subnet_id,
             UserData=user_data,
+            PrivateIpAddress='10.84.15.20',
             TagSpecifications=[
                 {
                     'ResourceType': 'instance',

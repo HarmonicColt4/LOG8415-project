@@ -6,7 +6,7 @@ from pythonping import ping
 HOST = ''
 PORT = 5001
 
-master_ip = ['10.84.15.10']
+master_ip = '10.84.15.10'
 slave_ips = ['10.84.15.11', '10.84.15.12']
 
 mode = 'direct hit'
