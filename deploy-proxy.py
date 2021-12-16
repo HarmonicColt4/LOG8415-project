@@ -132,7 +132,7 @@ def create_cluster_instances():
         ],
     )
 
-    for i in range(1,4):
+    for i in range(1,3):
         with open(f'cluster-user-data/slave{i}.txt', 'r') as reader:
             user_data = reader.read()
         client.run_instances(
@@ -256,7 +256,6 @@ def get_subnet_sg_ids():
         sg_id = response['SecurityGroups'][0]['GroupId']
 
     return subnet_id, sg_id
-
 
 deploy_cluster()
 deploy_proxy()

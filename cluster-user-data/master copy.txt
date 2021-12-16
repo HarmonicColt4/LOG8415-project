@@ -1,0 +1,87 @@
+#!/bin/bash
+
+sudo apt update
+sudo apt upgrade -y
+
+# Installing and Configuring the Cluster Manager
+sudo apt install libtinfo5 -y
+
+cd ~
+wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-7.6/mysql-cluster-community-management-server_7.6.6-1ubuntu18.04_amd64.deb
+
+sudo dpkg -i mysql-cluster-community-management-server_7.6.6-1ubuntu18.04_amd64.deb
+
+
+sudo mkdir /var/lib/mysql-cluster
+
+cat << EOF > /var/lib/mysql-cluster/config.ini
+[ndbd default]
+# Options affecting ndbd processes on all data nodes:
+NoOfReplicas=2  # Number of replicas
+
+[ndb_mgmd]
+# Management process options:
+hostname=10.84.15.10 # Hostname of the manager
+datadir=/var/lib/mysql-cluster  # Directory for the log files
+
+[ndbd]
+hostname=10.84.15.11 # Hostname/IP of the first data node
+datadir=/usr/local/mysql/data   # Remote directory for the data files
+
+[ndbd]
+hostname=10.84.15.12 # Hostname/IP of the second data node
+datadir=/usr/local/mysql/data   # Remote directory for the data files
+
+[mysqld]
+# SQL node options:
+hostname=10.84.15.10 # Hostname of the manager
+EOF
+
+cat << EOF > /etc/systemd/system/ndb_mgmd.service
+[Unit]
+Description=MySQL NDB Cluster Management Server
+After=network.target auditd.service
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/ndb_mgmd -f /var/lib/mysql-cluster/config.ini
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable ndb_mgmd
+sudo systemctl start ndb_mgmd
+
+# Configuring and Starting the MySQL Server and Client
+cd ~
+wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-7.6/mysql-cluster_7.6.6-1ubuntu18.04_amd64.deb-bundle.tar
+
+mkdir install
+tar -xvf mysql-cluster_7.6.6-1ubuntu18.04_amd64.deb-bundle.tar -C install/
+cd install
+
+sudo apt install libaio1 libmecab2 libncurses5 -y
+
+sudo dpkg -i mysql-common_7.6.6-1ubuntu18.04_amd64.deb
+sudo dpkg -i mysql-cluster-community-client_7.6.6-1ubuntu18.04_amd64.deb
+sudo dpkg -i mysql-client_7.6.6-1ubuntu18.04_amd64.deb
+
+sudo debconf-set-selections <<< "mysql-cluster-community-server mysql-cluster-community-server/root-pass password password"
+sudo debconf-set-selections <<< "mysql-cluster-community-server mysql-cluster-community-server/re-root-pass password password"
+
+sudo DEBIAN_FRONTEND=noninteractive dpkg -i mysql-cluster-community-server_7.6.6-1ubuntu18.04_amd64.deb
+sudo dpkg -i mysql-server_7.6.6-1ubuntu18.04_amd64.deb
+
+cat << EOF >> /etc/mysql/my.cnf
+[mysqld]
+# Options for mysqld process:
+ndbcluster                      # run NDB storage engine
+ndb-connectstring=10.84.15.10:1186
+EOF
+
+sudo systemctl restart mysql
