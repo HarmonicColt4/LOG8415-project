@@ -11,7 +11,7 @@ sudo apt install -y python3-pip
 git clone https://github.com/HarmonicColt4/LOG8415-project.git
 
 # start on boot
-printf '#!/bin/bash\npython3 LOG8415-project/proxy/main.py\n' > proxy.sh
+printf '#!/bin/bash\npython3 /LOG8415-project/proxy/main.py\n' > proxy.sh
 
 chmod +x proxy.sh
 
