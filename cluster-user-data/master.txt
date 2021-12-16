@@ -61,4 +61,4 @@ pid=$(pidof mysqld)
       --frequency 1000 \
       --pids $pid \
       --file /tmp/powerapi_master.txt \
-      duration 900 # 15 min
+      duration 900 & # 15 min
