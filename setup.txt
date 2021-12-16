@@ -22,3 +22,31 @@ sudo mysql -e "SET PASSWORD FOR root@localhost = PASSWORD('password');FLUSH PRIV
 sudo mysql -e "DELETE FROM mysql.user WHERE User='';"
 sudo mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
 sudo mysql -e "DROP DATABASE test;DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';"
+
+# run sysbench
+sudo mysql -e "create user sbtest_user identified by 'password'"
+sudo mysql -e "grant all on sakila.* to 'sbtest_user'@'%'"
+
+sysbench \
+--db-driver=mysql \
+--mysql-user=sbtest_user \
+--mysql_password=password \
+--mysql-db=sakila \
+--mysql-port=3306 \
+--tables=16 \
+--table-size=10000 \
+/usr/share/sysbench/oltp_read_write.lua prepare
+
+sysbench \
+--db-driver=mysql \
+--mysql-user=sbtest_user \
+--mysql_password=password \
+--mysql-db=sakila \
+--mysql-port=3306 \
+--tables=16 \
+--table-size=10000 \
+--threads=8 \
+--time=60 \
+--events=0 \
+--report-interval=1 \
+/usr/share/sysbench/oltp_read_write.lua run > benchmark_standalone.txt

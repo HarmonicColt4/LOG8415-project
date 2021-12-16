@@ -5,7 +5,13 @@ sudo apt update
 sudo apt -y upgrade
 
 # install mysql
-sudo apt -y install mysql-server
+sudo apt -y install mysql-server default-jre
+
+# install sakilla db
+sudo wget http://downloads.mysql.com/docs/sakila-db.tar.gz
+sudo tar xzf sakila-db.tar.gz -C /tmp/
+sudo mysql -e "SOURCE /tmp/sakila-db/sakila-schema.sql;"
+sudo mysql -e "SOURCE /tmp/sakila-db/sakila-data.sql;"
 
 # install sysbench
 curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh | sudo bash
@@ -34,3 +40,25 @@ sudo mysql -e "CREATE USER proxy IDENTIFIED WITH mysql_native_password BY 'passw
 sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO proxy WITH GRANT OPTION"
 sudo mysql -e "CREATE USER gatekeeper IDENTIFIED WITH mysql_native_password BY 'password'"
 sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO gatekeeper WITH GRANT OPTION"
+
+# launch powerapi
+wget https://github.com/powerapi-ng/powerapi-scala/releases/download/4.2.1/powerapi-cli-4.2.1.tgz
+
+tar xzf powerapi-cli-4.2.1.tgz
+
+cd powerapi-cli-4.2.1
+
+cat << EOF >> conf/powerapi.conf
+powerapi.cpu.tdp = 35
+powerapi.cpu.tdp-factor = 0.7
+EOF
+
+pid=$(pidof mysqld)
+
+./bin/powerapi \
+    modules procfs-cpu-simple \
+    monitor \
+      --frequency 1000 \
+      --pids $pid \
+      --file /tmp/powerapi_master.txt \
+      duration 900 # 15 min

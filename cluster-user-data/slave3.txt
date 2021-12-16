@@ -5,7 +5,7 @@ sudo apt update
 sudo apt -y upgrade
 
 # install mysql
-sudo apt -y install mysql-server
+sudo apt -y install mysql-server default-jre
 
 # install sysbench
 curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh | sudo bash
@@ -27,3 +27,25 @@ sudo systemctl restart mysql
 sudo mysql -e "STOP SLAVE;"
 sudo mysql -e "CHANGE MASTER TO MASTER_HOST='10.84.15.10', MASTER_USER='slave', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=661"
 sudo mysql -e "START SLAVE;"
+
+# launch powerapi
+wget https://github.com/powerapi-ng/powerapi-scala/releases/download/4.2.1/powerapi-cli-4.2.1.tgz
+
+tar xzf powerapi-cli-4.2.1.tgz
+
+cd powerapi-cli-4.2.1
+
+cat << EOF >> conf/powerapi.conf
+powerapi.cpu.tdp = 35
+powerapi.cpu.tdp-factor = 0.7
+EOF
+
+pid=$(pidof mysqld)
+
+./bin/powerapi \
+    modules procfs-cpu-simple \
+    monitor \
+      --frequency 1000 \
+      --pids $pid \
+      --file /tmp/powerapi_slave3.txt \
+      duration 900 & # 15 min
