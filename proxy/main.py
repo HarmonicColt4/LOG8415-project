@@ -2,36 +2,12 @@ import mysql.connector
 import random
 import asyncio
 from pythonping import ping
-import boto3
 
 HOST = ''
 PORT = 5001
 
-client = boto3.client('ec2')
-
-master_filters = [
-        {
-            'Name': 'tag:Name',
-            'Values': [
-                'master'
-            ]
-        }
-    ]
-
-slave_filters = [
-        {
-            'Name': 'tag:Name',
-            'Values': [
-                'slave'
-            ]
-        }
-    ]
-
-master_instance_response = client.describe_instances( Filters=master_filters )
-slave_instances_response = client.describe_instances( Filters=slave_filters )
-
-master_ip = [i['PublicIpAddress'] for r in master_instance_response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
-slave_ips = [i['PublicIpAddress'] for r in slave_instances_response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running']
+master_ip = ['10.84.15.10']
+slave_ips = ['10.84.15.11', '10.84.15.12']
 
 mode = 'direct hit'
 

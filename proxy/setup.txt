@@ -18,7 +18,7 @@ chmod +x proxy.sh
 crontab -l | { cat; echo "@reboot /proxy.sh"; } | crontab -
 
 # prepare aws
-cp -r LOG8415-project/.aws ~/.aws
+# cp -r LOG8415-project/.aws ~/.aws
 
 # install requirements.txt
 cd LOG8415-project/proxy
