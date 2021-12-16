@@ -18,7 +18,19 @@ HOST = proxy_ip  # The server's hostname or IP address
 PORT = 5001        # The port used by the server
 
 async def tcp_client():
-    reader, writer = await asyncio.open_connection(HOST, PORT)
+
+    while True:
+        try:
+            print('Wait for proxy server to become available...', end=' ')
+
+            reader, writer = await asyncio.open_connection(HOST, PORT)
+            
+            print('Connected to proxy!')
+            break
+        except ConnectionRefusedError:
+            print('Trying again in 15 seconds...')
+            await asyncio.sleep(15)
+            pass
 
     user_input = input('Send: ')
 

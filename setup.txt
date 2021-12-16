@@ -49,4 +49,4 @@ sysbench \
 --time=60 \
 --events=0 \
 --report-interval=1 \
-/usr/share/sysbench/oltp_read_write.lua run > benchmark_standalone.txt
+/usr/share/sysbench/oltp_read_write.lua run > /tmp/benchmark_standalone.txt
