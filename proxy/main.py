@@ -12,10 +12,22 @@ slave_ips = ['10.84.15.11', '10.84.15.12']
 mode = 'direct hit'
 
 # MySQL - open connections and slaves
-master_connection = mysql.connector.connect(user='proxy', password='password', host=master_ip, database='project', connection_timeout=60)
+while True:
+    try:
+        master_connection = mysql.connector.connect(user='proxy', password='password', host=master_ip, database='project', connection_timeout=60)
+        break
+    except mysql.connector.Error as err:
+        pass
 
-slave_connections = [mysql.connector.connect(user='proxy', password='password', host=slave_ip, database='project', connection_timeout=60)
-                              for slave_ip in slave_ips]
+slave_connections = []
+
+for slave_ip in slave_ips:
+    while True:
+        try:
+            slave_connections.append(mysql.connector.connect(user='proxy', password='password', host=slave_ip, database='project', connection_timeout=60))
+            break
+        except mysql.connector.Error as err:
+            pass
 
 connections = slave_connections + [master_connection]
 
