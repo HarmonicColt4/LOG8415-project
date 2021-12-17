@@ -16,14 +16,14 @@ response = client.describe_instances( Filters=[
 
 proxy_ip = [i['PublicIpAddress'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
 
-HOST = proxy_ip  # The server's hostname or IP address
+HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 5001        # The port used by the server
 
 mode = 'direct hit'
 
 async def run_insert_person(reader, writer, person):
     seq, first, last, age, city, phone, email, street, birthday, gender = person.split(',')
-    statement = f'INSERT INTO people VALUES ({seq}, {first}, {last}, {age}, {city}, \'{phone}\', \'{email}\', {street}, \'{birthday}\', {gender});'
+    statement = f'INSERT INTO people VALUES ({seq}, \'{first}\', \'{last}\', {age}, \'{city}\', \'{phone}\', \'{email}\', \'{street}\', \'{birthday}\', \'{gender}\');'
     
     obj = {'type': 'insert', 'statement': statement}
     pickledobj = pickle.dumps(obj)
@@ -73,12 +73,12 @@ async def tcp_client():
         if user_input == 'insert':
             # insert data to db
             for person in people:
-                run_insert_person(reader, writer, person)
+                await run_insert_person(reader, writer, person)
 
         elif user_input == 'select':
             # retrieve data from db
             for person in people:
-                run_read_person(reader, writer, person)
+                await run_read_person(reader, writer, person)
 
         else:
             writer.write(user_input.encode())
