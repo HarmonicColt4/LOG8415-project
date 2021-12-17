@@ -24,6 +24,31 @@ sudo cp LOG8415-project/mysql-config-files/master-mysqld.cnf /etc/mysql/mysql.co
 
 sudo systemctl restart mysql
 
+# start powerapi on boot
+
+cat << EOF > powerapi.sh
+#!/bin/bash
+pid=$(pidof mysqld')
+
+while [ -z "$pid"]
+do
+  pid=$(pidof mysqld')
+  sleep 3
+done
+
+./powerapi-cli-4.2.1/bin/powerapi \
+    modules procfs-cpu-simple \
+    monitor \
+      --frequency 500 \
+      --pids $pid \
+      --file /tmp/powerapi_master.txt \
+      duration 900 &
+EOF
+
+chmod +x proxy.sh
+
+crontab -l | { cat; echo "@reboot /powerapi.sh"; } | crontab -
+
 sudo mysql -e "CREATE USER slave IDENTIFIED WITH mysql_native_password BY 'password'"
 sudo mysql -e "GRANT REPLICATION SLAVE on *.* to 'slave'@'%'"
 

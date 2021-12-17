@@ -24,6 +24,27 @@ sudo cp LOG8415-project/mysql-config-files/slave3-mysqld.cnf /etc/mysql/mysql.co
 
 sudo systemctl restart mysql
 
+# start powerapi on boot
+
+cat << EOF > powerapi.sh
+#!/bin/bash
+pid=$(pidof mysqld')
+
+while [ -z "$pid"]
+do
+  pid=$(pidof mysqld')
+  sleep 3
+done
+
+./powerapi-cli-4.2.1/bin/powerapi \
+    modules procfs-cpu-simple \
+    monitor \
+      --frequency 500 \
+      --pids $pid \
+      --file /tmp/powerapi_slave3.txt \
+      duration 900 &
+EOF
+
 sudo mysql -e "STOP SLAVE;"
 sudo mysql -e "CHANGE MASTER TO MASTER_HOST='10.84.15.10', MASTER_USER='slave', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=661"
 sudo mysql -e "START SLAVE;"
