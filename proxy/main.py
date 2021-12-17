@@ -68,8 +68,11 @@ def process_request(request):
     if type == 'mode':
         response = change_mode(statement)
 
-    if request == 'print':
-        return mode
+    if type == 'other':
+        if statement == 'print':
+            response = f'Current proxy configuration: {mode}'
+        else:
+            response = f'Request not recognized'
 
     return response
 

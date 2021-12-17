@@ -81,7 +81,10 @@ async def tcp_client():
                 await run_read_person(reader, writer, person)
 
         else:
-            writer.write(user_input.encode())
+            obj = {'type': 'other', 'statement': user_input}
+            pickledobj = pickle.dumps(obj)
+
+            writer.write(pickledobj)
             await writer.drain()
 
             data = await reader.read(1024)
