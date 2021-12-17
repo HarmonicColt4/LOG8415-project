@@ -69,6 +69,22 @@ sysbench \
 --report-interval=1 \
 /usr/share/sysbench/oltp_read_write.lua run > /tmp/benchmark_replication.txt
 
+# create table for testing
+sudo mysql -e 'use project;
+CREATE TABLE people ( \
+seq INT NOT NULL, \
+first VARCHAR(20) NOT NULL, \
+last VARCHAR(20) NOT NULL, \
+age INT NOT NULL, \
+city VARCHAR(20) NOT NULL, \
+phone VARCHAR(14) NOT NULL, \
+email VARCHAR(30) NOT NULL, \
+street VARCHAR(30) NOT NULL, \
+birthday VARCHAR(10) NOT NULL, \
+gender VARCHAR(6) NOT NULL, \
+PRIMARY KEY (seq) \
+);'
+
 # launch powerapi
 wget https://github.com/powerapi-ng/powerapi-scala/releases/download/4.2.1/powerapi-cli-4.2.1.tgz
 
