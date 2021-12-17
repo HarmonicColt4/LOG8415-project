@@ -36,7 +36,9 @@ do
   sleep 3
 done
 
-./powerapi-cli-4.2.1/bin/powerapi \
+cd /powerapi-cli-4.2.1
+
+./bin/powerapi \
     modules procfs-cpu-simple \
     monitor \
       --frequency 500 \
