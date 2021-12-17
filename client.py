@@ -47,6 +47,29 @@ async def run_read_person(reader, writer, person):
     data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
+async def change_mode(reader, writer, mode):
+    obj = {'type': 'mode', 'statement': mode}
+    pickledobj = pickle.dumps(obj)
+
+    writer.write(pickledobj)
+    await writer.drain()
+
+    # confirm insertion
+    data = await reader.read(1024)
+    print(f'Received: {data.decode()!r}')
+
+async def clear_table(reader, writer):
+    statement = 'DELETE FROM people'
+    obj = {'type': 'delete', 'statement': statement}
+    pickledobj = pickle.dumps(obj)
+
+    writer.write(pickledobj)
+    await writer.drain()
+
+    # confirm insertion
+    data = await reader.read(1024)
+    print(f'Received: {data.decode()!r}')
+
 async def tcp_client():
 
     while True:
@@ -63,7 +86,7 @@ async def tcp_client():
             pass
 
     # read data file
-    with open('people.csv', 'r') as f:
+    with open('test.csv', 'r') as f:
         people = f.readlines()
 
     user_input = input('Send: ')
@@ -79,6 +102,12 @@ async def tcp_client():
             # retrieve data from db
             for person in people:
                 await run_read_person(reader, writer, person)
+
+        elif user_input == 'delete':
+            await clear_table(reader, writer)
+
+        elif user_input in ['direct hit', 'random', 'ping']:
+            await change_mode(reader, writer, user_input)
 
         else:
             obj = {'type': 'other', 'statement': user_input}

@@ -65,6 +65,13 @@ def process_request(request):
         connection = select_connection()
         response = process_select(connection, statement)
 
+    if type == 'delete':
+        with master_connection.cursor() as cursor:
+            cursor.execute(statement)
+            master_connection.commit()
+
+        response = 'Table was successfully cleared'
+
     if type == 'mode':
         response = change_mode(statement)
 
@@ -99,7 +106,7 @@ def process_select(connection, statement):
     with connection.cursor() as cursor:
         cursor.execute(statement)
         result = cursor.fetchall()
-        response = '\n'.join(result)
+        response = '\n'.join([str(r) for r in result])
         response = f'{response}\nRequest performed by {connection.server_host}'
 
     return response
