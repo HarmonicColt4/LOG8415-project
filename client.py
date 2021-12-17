@@ -1,25 +1,8 @@
 import asyncio
 import boto3
 import pickle
+import time
 import multiprocessing
-
-client = boto3.client('ec2')
-
-response = client.describe_instances( Filters=[
-        {
-            'Name': 'tag:Name',
-            'Values': [
-                'proxy'
-            ]
-        }
-    ])
-
-proxy_ip = [i['PublicIpAddress'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
-
-HOST = '127.0.0.1'  # The server's hostname or IP address
-PORT = 5001        # The port used by the server
-
-mode = 'direct hit'
 
 async def run_insert_person(reader, writer, person):
     seq, first, last, age, city, phone, email, street, birthday, gender = person.split(',')
@@ -70,11 +53,10 @@ async def clear_table(reader, writer):
     data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
-async def tcp_client():
-
+async def tcp_client(HOST, PORT):
     while True:
         try:
-            print('Wait for proxy server to become available...', end=' ')
+            print('Wait for server to become available...', end=' ')
 
             reader, writer = await asyncio.open_connection(HOST, PORT)
             
@@ -89,40 +71,49 @@ async def tcp_client():
     with open('test.csv', 'r') as f:
         people = f.readlines()
 
-    user_input = input('Send: ')
+    # insert data to db
+    for person in people:
+        await run_insert_person(reader, writer, person)
 
-    while user_input != '':
+    # delay 5s
+    time.sleep(5)
 
-        if user_input == 'insert':
-            # insert data to db
-            for person in people:
-                await run_insert_person(reader, writer, person)
+    # retrieve data from db
+    for mode in ['direct hit', 'random', 'ping']:
+        await change_mode(reader, writer, mode)
+        
+        for person in people:
+            await run_read_person(reader, writer, person)
 
-        elif user_input == 'select':
-            # retrieve data from db
-            for person in people:
-                await run_read_person(reader, writer, person)
+        # delay 5s
+        time.sleep(5)        
 
-        elif user_input == 'delete':
-            await clear_table(reader, writer)
-
-        elif user_input in ['direct hit', 'random', 'ping']:
-            await change_mode(reader, writer, user_input)
-
-        else:
-            obj = {'type': 'other', 'statement': user_input}
-            pickledobj = pickle.dumps(obj)
-
-            writer.write(pickledobj)
-            await writer.drain()
-
-            data = await reader.read(1024)
-            print(f'Received: {data.decode()!r}')
-
-        user_input = input('Send: ')
+    # clear table
+    await clear_table(reader, writer)
 
     print('Close the connection')
     writer.close()
     await writer.wait_closed()
 
-asyncio.run(tcp_client())
+def main(server, port):
+    client = boto3.client('ec2')
+    
+    response = client.describe_instances( Filters=[
+            {
+                'Name': 'tag:Name',
+                'Values': [
+                    server
+                ]
+            }
+        ])
+
+    server_ip = [i['PublicIpAddress'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
+
+    HOST = server_ip    # The server's hostname or IP address
+    PORT = port        # The port used by the server
+
+    asyncio.run(tcp_client(HOST, PORT))
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv[1], int(sys.argv[2]))
