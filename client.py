@@ -36,7 +36,7 @@ async def run_insert_person(reader, writer, person):
 
 async def run_read_person(reader, writer, person):
     seq = person.split(',')[0]
-    statement = f'SELECT seq, first, last FROM people WHERE seq = {seq};'
+    statement = f'SELECT * FROM people WHERE seq = {seq};'
     
     obj = {'type': 'select', 'statement': statement}
     pickledobj = pickle.dumps(obj)

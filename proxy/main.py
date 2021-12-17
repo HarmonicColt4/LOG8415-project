@@ -1,6 +1,7 @@
 import mysql.connector
 import random
 import asyncio
+import pickle
 from pythonping import ping
 
 HOST = ''
@@ -31,27 +32,46 @@ for slave_ip in slave_ips:
 
 connections = slave_connections + [master_connection]
 
-def process_request(request):
-    global mode
-    if request == 'read':
-        connection = select_connection()
-        read_operation(connection)
-        return 'Read operation completed'
+def parse_request(request):
+    obj = pickle.loads(request)
+    type = obj['type']
+    statement = obj['statement']
 
-    if request == 'direct hit':
+    return type, statement
+
+def change_mode(new_mode):
+    global mode
+    if new_mode == 'direct hit':
         mode = 'direct hit'
         return 'Proxy mode changed to \'direct hit\''
-    if request == 'random':
+    if new_mode == 'random':
         mode = 'random'
         return 'Proxy mode changed to \'random\''
-    if request == 'ping':
+    if new_mode == 'ping':
         mode = 'ping'
         return 'Proxy mode changed to \'ping\''
+
+def process_request(request):
+    type, statement = parse_request(request)
+
+    if type == 'insert':
+        with master_connection.cursor() as cursor:
+            cursor.execute(statement)
+            master_connection.commit()
+        
+        response = 'Data was successfully inserted'
+
+    if type == 'select':
+        connection = select_connection()
+        response = process_select(connection, statement)
+
+    if type == 'mode':
+        response = change_mode(statement)
 
     if request == 'print':
         return mode
 
-    return 'Request not recognized'
+    return response
 
 def select_connection():
     if mode == 'direct hit':
@@ -72,27 +92,26 @@ def select_connection():
 
     return master_connection
 
-def read_operation(connection):
-    select_query = "SELECT user FROM mysql.user"
+def process_select(connection, statement):
     with connection.cursor() as cursor:
-        cursor.execute(select_query)
+        cursor.execute(statement)
         result = cursor.fetchall()
-        for row in result:
-            print(row)
+        response = '\n'.join(result)
+        response = f'{response}\nRequest performed by {connection.server_host}'
+
+    return response
 
 async def handle_requests(reader, writer):
     while True:
-        data = await reader.read(1024)
+        request = await reader.read(1024)
 
-        if not data:
+        if not request:
             break
-
-        request = data.decode()
 
         response = process_request(request)
 
-        data = response.encode()
-        writer.write(data)
+        request = response.encode()
+        writer.write(request)
         await writer.drain()
 
     writer.close()
