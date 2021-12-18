@@ -10,8 +10,7 @@ sudo apt install -y python3-pip default-jre
 # clone repo
 git clone https://github.com/HarmonicColt4/LOG8415-project.git
 
-# start on boot
-
+# start powerapi on boot
 cat << EOF > proxy.sh
 #!/bin/bash
 python3 /LOG8415-project/proxy/main.py &
@@ -29,7 +28,7 @@ cd /powerapi-cli-4.2.1
 ./bin/powerapi \
     modules procfs-cpu-simple \
     monitor \
-      --frequency 500 \
+      --frequency 1000 \
       --pids $pid \
       --file /tmp/powerapi_proxy.txt \
       duration 900 &
