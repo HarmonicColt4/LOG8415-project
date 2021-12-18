@@ -51,18 +51,3 @@ crontab -l | { cat; echo "@reboot /gatekeeper.sh"; } | crontab -
 
 # clone repo
 git clone https://github.com/HarmonicColt4/LOG8415-project.git
-
-# run application
-cd /LOG8415-project/gatekeeper
-python3 main.py &
-
-# launch powerapi
-pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
-
-./bin/powerapi \
-    modules procfs-cpu-simple \
-    monitor \
-      --frequency 1000 \
-      --pids $pid \
-      --file /home/ubuntu/powerapi_gatekeeper.txt \
-      duration 900 & # 15 min

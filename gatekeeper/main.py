@@ -50,7 +50,7 @@ async def tcp_client():
             pass
 
     server = await asyncio.start_server(
-        handle_requests, '', PORT)
+        handle_requests, HOST, PORT)
 
     addrs = ', '.join(str(sock.getsockname()) for sock in server.sockets)
     print(f'Serving on {addrs}')

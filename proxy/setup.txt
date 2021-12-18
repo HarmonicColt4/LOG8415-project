@@ -24,7 +24,7 @@ cd /
 
 cat << 'EOF' > proxy.sh
 #!/bin/bash
-python3 /LOG8415-project/proxy/main.py &
+python3 /LOG8415-project/proxy/main.py no &
 
 pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
 
@@ -58,7 +58,7 @@ cd /LOG8415-project/proxy
 pip install -r requirements.txt
 
 # run application
-python3 main.py &
+python3 main.py delay &
 
 # launch powerapi
 pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')

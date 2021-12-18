@@ -48,6 +48,9 @@ print("Launching client")
 time.sleep(3)
 client.main('proxy', 5001)
 
+# add delay for gatekeeper
+time.sleep(180)
+
 master_ip = find_instance_ip('master')[0]
 slave_1_ip = find_instance_ip('slave')[0]
 slave_2_ip = find_instance_ip('slave')[1]
