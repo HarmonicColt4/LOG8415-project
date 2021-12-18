@@ -1,5 +1,6 @@
 import asyncio
 import pickle
+import time
 
 HOST = ''
 PORT = 5002
@@ -56,5 +57,7 @@ async def tcp_client():
 
     async with server:
         await server.serve_forever()
+
+time.sleep(300)
 
 asyncio.run(tcp_client())
