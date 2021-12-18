@@ -414,7 +414,6 @@ def get_subnet_sg_ids():
     ])
 
     if len(response['KeyPairs']) == 0:
-        print('here')
         response = client.create_key_pair(KeyName='mysql', KeyType='ed25519')
 
         # create private key file
