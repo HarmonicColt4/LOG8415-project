@@ -57,4 +57,6 @@ async def tcp_client():
     async with server:
         await server.serve_forever()
 
+time.sleep(60)
+
 asyncio.run(tcp_client())
