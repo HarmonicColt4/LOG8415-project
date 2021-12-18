@@ -18,7 +18,15 @@ python3 /LOG8415-project/proxy/main.py &
 
 pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
 
-./powerapi-cli-4.2.1/bin/powerapi \
+while [ -z "$pid"]
+do
+  pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
+  sleep 3
+done
+
+cd /powerapi-cli-4.2.1
+
+./bin/powerapi \
     modules procfs-cpu-simple \
     monitor \
       --frequency 500 \
