@@ -106,8 +106,8 @@ def process_select(connection, statement):
     with connection.cursor() as cursor:
         cursor.execute(statement)
         result = cursor.fetchall()
-        response = '\n'.join([str(r) for r in result])
-        response = f'{response}\nRequest performed by {connection.server_host}'
+        response = ' '.join([str(r) for r in result])
+        response = f'{response} Request performed by {connection.server_host}'
 
     return response
 
