@@ -43,7 +43,7 @@ cd /powerapi-cli-4.2.1
     monitor \
       --frequency 500 \
       --pids $pid \
-      --file /tmp/powerapi_master.txt \
+      --file /tmp/powerapi_master_2.txt \
       duration 900 &
 EOF
 
@@ -131,5 +131,5 @@ pid=$(pidof mysqld)
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /tmp/powerapi_master.txt \
+      --file /tmp/powerapi_master_1.txt \
       duration 900 & # 15 min

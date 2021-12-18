@@ -1,3 +1,4 @@
+import time
 import boto3
 
 client = boto3.client('ec2')
@@ -229,10 +230,8 @@ def adjust_security_group_rules_with_gatekeeper():
     # add new rules
     security_group.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=22, ToPort=22)
     security_group.authorize_ingress(CidrIp='10.84.15.21/32', IpProtocol='tcp', FromPort=5001, ToPort=5001)
-    security_group.authorize_ingress(CidrIp='10.84.15.10/32', IpProtocol='tcp', FromPort=3306, ToPort=3306)
-    security_group.authorize_ingress(CidrIp='10.84.15.11/32', IpProtocol='tcp', FromPort=3306, ToPort=3306)
-    security_group.authorize_ingress(CidrIp='10.84.15.12/32', IpProtocol='tcp', FromPort=3306, ToPort=3306)
-    security_group.authorize_ingress(CidrIp='10.84.15.20/32', IpProtocol='icmp', FromPort=8, ToPort=-1)
+    security_group.authorize_ingress(CidrIp='10.84.15.0/24', IpProtocol='tcp', FromPort=3306, ToPort=3306)
+    security_group.authorize_ingress(CidrIp='10.84.15.0/24', IpProtocol='icmp', FromPort=-1, ToPort=-1)
     security_group.authorize_egress(IpPermissions=[
         {
             'FromPort': 5001,
@@ -252,7 +251,7 @@ def adjust_security_group_rules_with_gatekeeper():
             'IpProtocol': 'tcp',
             'IpRanges': [
                 {
-                    'CidrIp': '10.84.15.10/32',
+                    'CidrIp': '10.84.15.0/24',
                     'Description': 'mysql'
                 },
             ],
@@ -261,30 +260,24 @@ def adjust_security_group_rules_with_gatekeeper():
     ])
     security_group.authorize_egress(IpPermissions=[
         {
-            'FromPort': 3306,
-            'IpProtocol': 'tcp',
+            'FromPort': -1,
+            'IpProtocol': 'icmp',
             'IpRanges': [
                 {
-                    'CidrIp': '10.84.15.11/32',
-                    'Description': 'mysql'
+                    'CidrIp': '10.84.15.0/24',
+                    'Description': 'ping'
                 },
             ],
-            'ToPort': 3306
+            'ToPort': -1
         },
     ])
-    security_group.authorize_egress(IpPermissions=[
-        {
-            'FromPort': 3306,
-            'IpProtocol': 'tcp',
-            'IpRanges': [
-                {
-                    'CidrIp': '10.84.15.12/32',
-                    'Description': 'mysql'
-                },
-            ],
-            'ToPort': 3306
-        },
-    ])
+
+def reboot_all_instances():
+    response = find_instances(['master', 'slave', 'proxy', 'gatekeeper'])
+    instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running']
+
+    client.reboot_instances(InstanceIds=instances_ids)
+
 
 def create_cluster_instances():
 
