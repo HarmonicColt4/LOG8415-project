@@ -345,6 +345,103 @@ def create_security_group(vpc_id):
 
     return securitygroup
 
+def cleanup():
+    # terminate instances
+    response = find_instances(['master', 'slave', 'proxy', 'gatekeeper'])
+
+    instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances']
+                                        if i['State']['Name'] == 'running' or i['State']['Name'] == 'stopped']
+
+    if len(instances_ids) > 0:
+        print('Terminating instances')
+        client.terminate_instances(InstanceIds=instances_ids)
+
+        waiter = client.get_waiter('instance_terminated')
+        waiter.wait(InstanceIds=instances_ids)
+
+    else:
+        print('Instances already terminated')
+
+    # delete keypair
+    response = client.delete_key_pair(KeyName='mysql')
+
+    # delete security groups
+    response = client.describe_security_groups(
+    Filters=[
+        {
+            'Name': 'group-name',
+            'Values': [
+                'mysql', 'gatekeeper'
+            ]
+        },
+    ])
+
+    if len(response['SecurityGroups']) > 0:
+        for id in [sg_id['GroupId'] for sg_id in response['SecurityGroups']]:
+            client.delete_security_group(GroupId=id)
+    else:
+        print('Security groups already deleted')
+
+    # get vpc id
+    response = client.describe_vpcs(
+    Filters=[
+        {
+            'Name': 'tag:Name',
+            'Values': [
+                'mysql'
+            ]
+        }
+    ])
+
+    if len(response['Vpcs']) > 0:
+        print('Deleting vpc')        
+        vpc_id = response['Vpcs'][0]['VpcId']
+
+        response = client.describe_subnets(
+        Filters=[
+            {
+                'Name': 'vpc-id',
+                'Values': [
+                    vpc_id
+                ]
+            }
+        ])
+
+        subnet_id = response['Subnets'][0]['SubnetId']
+        
+        # delete internet gateway
+        response = client.describe_internet_gateways()
+
+        igw_id = [ig['InternetGatewayId'] for ig in response['InternetGateways']
+                                            for a in ig['Attachments']
+                                                if a['VpcId'] == vpc_id][0]
+
+        response = client.detach_internet_gateway(InternetGatewayId=igw_id, VpcId=vpc_id)
+        response = client.delete_internet_gateway(InternetGatewayId=igw_id)
+
+        # delete subnet
+        response = client.delete_subnet(SubnetId=subnet_id)
+
+        # delete vpc route tables
+        response = client.describe_route_tables()
+        
+        # delete route to internet gateway
+        rtb_id = [rtb['RouteTableId'] for rtb in response['RouteTables']
+                                    if rtb['VpcId'] == vpc_id and len(rtb['Associations']) == 0][0]
+
+        client.delete_route(
+            DestinationCidrBlock='0.0.0.0/0',
+            RouteTableId=rtb_id,
+        )
+
+        response = client.delete_route_table(RouteTableId=rtb_id)
+
+        # delete vpc
+        response = client.delete_vpc(VpcId=vpc_id)        
+
+    else:
+        print('Vpc already deleted')
+
 def get_subnet_sg_ids():
     subnet_id = ''
     sg_id = ''
