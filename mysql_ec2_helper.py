@@ -272,8 +272,8 @@ def adjust_security_group_rules_with_gatekeeper():
         },
     ])
 
-def reboot_all_instances():
-    response = find_instances(['master', 'slave', 'proxy', 'gatekeeper'])
+def reboot_instance(name_tags):
+    response = find_instances(name_tags)
     instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running']
 
     client.reboot_instances(InstanceIds=instances_ids)
@@ -333,23 +333,6 @@ def create_vpc():
         },
     )
     routetable.associate_with_subnet(SubnetId=subnet.id)
-
-    # create keypair if it doesn't exist
-    response = client.describe_key_pairs(Filters=[
-        {
-            'Name': 'key-name',
-            'Values': [
-                'mysql',
-            ]
-        },
-    ])
-
-    if len(response['KeyPairs']) == 0:
-        response = client.create_key_pair(KeyName='mysql', KeyType='ed25519')
-
-        # create private key file
-        with open('mysql.pem', 'w') as writer:
-            writer.write(response['KeyMaterial'])
 
     return vpc
 
@@ -419,5 +402,23 @@ def get_subnet_sg_ids():
 
     else:
         sg_id = response['SecurityGroups'][0]['GroupId']
+
+    # create keypair if it doesn't exist
+    response = client.describe_key_pairs(Filters=[
+        {
+            'Name': 'key-name',
+            'Values': [
+                'mysql',
+            ]
+        },
+    ])
+
+    if len(response['KeyPairs']) == 0:
+        print('here')
+        response = client.create_key_pair(KeyName='mysql', KeyType='ed25519')
+
+        # create private key file
+        with open('mysql.pem', 'w') as writer:
+            writer.write(response['KeyMaterial'])
 
     return subnet_id, sg_id
