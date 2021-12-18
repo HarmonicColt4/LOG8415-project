@@ -278,7 +278,26 @@ def reboot_all_instances():
 
     client.reboot_instances(InstanceIds=instances_ids)
 
+def terminate_instance(name_tag):
+    response = find_instances([name_tag])
+    instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running']
 
+    instance = ec2.Instance(instances_ids[0])
+    instance.terminate()
+    instance.wait_until_terminated()
+
+def stop_all_instances():
+    response = find_instances(['master', 'slave', 'proxy', 'gatekeeper'])
+
+    instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running']
+
+    if len(instances_ids) > 0:
+        client.stop_instances(InstanceIds=instances_ids)
+        print('Stopping instances')
+
+    else:
+        print('Instances already stopped')
+    
 def create_cluster_instances():
 
     launch_instance('cluster-user-data/master.txt', 't2.micro', '10.84.15.10', 'master')

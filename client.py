@@ -67,6 +67,9 @@ async def tcp_client(HOST, PORT):
             await asyncio.sleep(15)
             pass
 
+    # clear table
+    await clear_table(reader, writer)
+
     # read data file
     with open('test.csv', 'r') as f:
         people = f.readlines()
