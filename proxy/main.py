@@ -13,7 +13,7 @@ slave_ips = ['10.84.15.11', '10.84.15.12']
 
 mode = 'direct hit'
 
-time.sleep(300)
+time.sleep(150)
 
 # MySQL - open connections and slaves
 while True:
