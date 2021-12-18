@@ -1,4 +1,3 @@
-import time
 import mysql.connector
 import random
 import asyncio
@@ -137,7 +136,5 @@ async def main():
 
     async with server:
         await server.serve_forever()
-
-time.sleep(60)
 
 asyncio.run(main())
