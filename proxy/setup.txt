@@ -26,11 +26,11 @@ cat << 'EOF' > proxy.sh
 #!/bin/bash
 python3 /LOG8415-project/proxy/main.py no &
 
-pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
+pid=$(ps aux | grep "python3.*main\.py" | awk 'NR==1{ print $2 }')
 
 while [ -z "$pid" ]
 do
-  pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
+  pid=$(ps aux | grep "python3.*main\.py" | awk 'NR==1{ print $2 }')
   sleep 3
 done
 
