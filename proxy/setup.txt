@@ -11,7 +11,7 @@ sudo apt install -y python3-pip default-jre
 git clone https://github.com/HarmonicColt4/LOG8415-project.git
 
 # start powerapi on boot
-cat << EOF > proxy.sh
+cat << 'EOF' > proxy.sh
 #!/bin/bash
 python3 /LOG8415-project/proxy/main.py &
 

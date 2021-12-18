@@ -21,13 +21,13 @@ sudo cp LOG8415-project/mysql-config-files/slave1-mysqld.cnf /etc/mysql/mysql.co
 sudo systemctl restart mysql
 
 # start powerapi on boot
-cat << EOF > powerapi.sh
+cat << 'EOF' > powerapi.sh
 #!/bin/bash
-pid=$(pidof mysqld')
+pid=$(pidof mysqld)
 
 while [ -z "$pid"]
 do
-  pid=$(pidof mysqld')
+  pid=$(pidof mysqld)
   sleep 3
 done
 

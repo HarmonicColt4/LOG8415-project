@@ -11,7 +11,7 @@ sudo apt install -y python3-pip default-jre
 git clone https://github.com/HarmonicColt4/LOG8415-project.git
 
 # start powerapi on boot
-cat << EOF > gatekeeper.sh
+cat << 'EOF' > gatekeeper.sh
 #!/bin/bash
 python3 /LOG8415-project/gatekeeper/main.py &
 
