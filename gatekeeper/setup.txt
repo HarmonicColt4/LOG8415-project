@@ -39,7 +39,7 @@ chmod +x gatekeeper.sh
 crontab -l | { cat; echo "@reboot /gatekeeper.sh"; } | crontab -
 
 # run application
-cd /LOG8415-project/proxy
+cd /LOG8415-project/gatekeeper
 python3 main.py &
 
 # launch powerapi
