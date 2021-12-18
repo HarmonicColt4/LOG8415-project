@@ -72,7 +72,7 @@ def deploy_standalone():
 
 def deploy_cluster():
     # get instances
-    response = find_instances(['master', 'proxy'])
+    response = find_instances(['master', 'slave'])
 
     # if cluster instances are terminated and not created, launch instances
     terminated = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'terminated']
@@ -83,7 +83,6 @@ def deploy_cluster():
 
     else:
     # start cluster instances if they are stopped
-
         # get instance ids
         instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'stopped']
 
@@ -354,6 +353,7 @@ def create_security_group(vpc_id):
 def get_subnet_sg_ids():
     subnet_id = ''
     sg_id = ''
+    vpc_id = ''
 
     response = client.describe_vpcs(
     Filters=[
@@ -372,6 +372,8 @@ def get_subnet_sg_ids():
         subnet = list(vpc.subnets.all())[0]
 
         subnet_id = subnet.id
+
+        vpc_id = vpc.id
 
     else:
         vpc_id = response['Vpcs'][0]['VpcId']
@@ -399,7 +401,7 @@ def get_subnet_sg_ids():
     ])
 
     if len(response['SecurityGroups']) == 0:
-        security_group = create_security_group(vpc.id)
+        security_group = create_security_group(vpc_id)
 
         sg_id = security_group.group_id
 
