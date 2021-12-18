@@ -50,8 +50,17 @@ client.main('proxy', 5001)
 
 print("Adjusting security group rules for gatekeeper cloud pattern and reboot instances")
 mysql_ec2_helper.adjust_security_group_rules_with_gatekeeper()
-mysql_ec2_helper.reboot_all_instances()
 
+print('Reboot cluster')
+mysql_ec2_helper.reboot_instance(['master', 'slave'])
+time.sleep(5)
+
+print('Reboot proxy')
+mysql_ec2_helper.reboot_instance(['proxy'])
+time.sleep(5)
+
+print('Reboot gatekeeper')
+mysql_ec2_helper.reboot_instance(['gatekeeper'])
 time.sleep(30)
 
 client.main('gatekeeper', 5002)
@@ -61,6 +70,7 @@ slave_1_ip = find_instance_ip('slave')[0]
 slave_2_ip = find_instance_ip('slave')[1]
 proxy_ip = find_instance_ip('proxy')[0]
 gatekeeper_ip = find_instance_ip('gatekeeper')[0]
+
 print("Getting results from instances")
 with Connection(master_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
     c.get('/tmp/benchmark_replication.txt', local='results/benchmark_replication.txt')
