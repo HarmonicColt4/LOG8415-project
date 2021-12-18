@@ -347,7 +347,7 @@ def create_security_group(vpc_id):
 
 def cleanup():
     # terminate instances
-    response = find_instances(['master', 'slave', 'proxy', 'gatekeeper'])
+    response = find_instances(['standalone', 'master', 'slave', 'proxy', 'gatekeeper'])
 
     instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances']
                                         if i['State']['Name'] == 'running' or i['State']['Name'] == 'stopped']
