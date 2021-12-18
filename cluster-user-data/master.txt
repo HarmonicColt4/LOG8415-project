@@ -41,7 +41,7 @@ cd /powerapi-cli-4.2.1
 ./bin/powerapi \
     modules procfs-cpu-simple \
     monitor \
-      --frequency 500 \
+      --frequency 1000 \
       --pids $pid \
       --file /home/ubuntu/powerapi_master_2.txt \
       duration 900 &

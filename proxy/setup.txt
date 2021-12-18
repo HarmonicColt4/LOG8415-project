@@ -63,7 +63,7 @@ pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
 ./bin/powerapi \
     modules procfs-cpu-simple \
     monitor \
-      --frequency 500 \
+      --frequency 1000 \
       --pids $pid \
       --file /home/ubuntu/powerapi_proxy_1.txt \
       duration 900 & # 15 min
