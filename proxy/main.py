@@ -13,6 +13,8 @@ slave_ips = ['10.84.15.11', '10.84.15.12']
 
 mode = 'direct hit'
 
+time.sleep(300)
+
 # MySQL - open connections and slaves
 while True:
     try:
@@ -138,6 +140,5 @@ async def main():
     async with server:
         await server.serve_forever()
 
-time.sleep(300)
 
 asyncio.run(main())
