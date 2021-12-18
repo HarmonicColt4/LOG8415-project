@@ -24,7 +24,6 @@ sudo cp LOG8415-project/mysql-config-files/slave3-mysqld.cnf /etc/mysql/mysql.co
 
 sudo systemctl restart mysql
 
-
 # start powerapi on boot
 cat << 'EOF' > powerapi.sh
 #!/bin/bash
@@ -43,7 +42,7 @@ cd /powerapi-cli-4.2.1
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /home/ubuntu/powerapi_slave3_2.txt \
+      --file /home/ubuntu/powerapi_slave3.txt \
       duration 900 &
 EOF
 
@@ -74,5 +73,5 @@ pid=$(pidof mysqld)
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /home/ubuntu/powerapi_slave3_2.txt \
+      --file /home/ubuntu/powerapi_slave3.txt \
       duration 900 & # 15 min

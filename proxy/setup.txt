@@ -2,22 +2,33 @@
 
 # update
 sudo apt update
-sudo apt -y upgrade
+sudo apt upgrade -y
 
-# install pip
-sudo apt install -y python3-pip default-jre
+# install pip java
+sudo apt install python3-pip default-jre -y
 
-# clone repo
-git clone https://github.com/HarmonicColt4/LOG8415-project.git
+# get powerapi
+wget https://github.com/powerapi-ng/powerapi-scala/releases/download/4.2.1/powerapi-cli-4.2.1.tgz
+
+tar xzf powerapi-cli-4.2.1.tgz
+
+cd /powerapi-cli-4.2.1
+
+cat << EOF >> conf/powerapi.conf
+powerapi.cpu.tdp = 35
+powerapi.cpu.tdp-factor = 0.7
+EOF
 
 # start powerapi on boot
+cd /
+
 cat << 'EOF' > proxy.sh
 #!/bin/bash
 python3 /LOG8415-project/proxy/main.py &
 
 pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
 
-while [ -z "$pid"]
+while [ -z "$pid" ]
 do
   pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
   sleep 3
@@ -30,13 +41,16 @@ cd /powerapi-cli-4.2.1
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /home/ubuntu/powerapi_proxy_2.txt \
+      --file /home/ubuntu/powerapi_proxy.txt \
       duration 900 &
 EOF
 
 chmod +x proxy.sh
 
 crontab -l | { cat; echo "@reboot /proxy.sh"; } | crontab -
+
+# clone repo
+git clone https://github.com/HarmonicColt4/LOG8415-project.git
 
 # install requirements.txt
 cd /LOG8415-project/proxy
@@ -47,17 +61,6 @@ pip install -r requirements.txt
 python3 main.py &
 
 # launch powerapi
-wget https://github.com/powerapi-ng/powerapi-scala/releases/download/4.2.1/powerapi-cli-4.2.1.tgz
-
-tar xzf powerapi-cli-4.2.1.tgz
-
-cd /powerapi-cli-4.2.1
-
-cat << EOF >> conf/powerapi.conf
-powerapi.cpu.tdp = 35
-powerapi.cpu.tdp-factor = 0.7
-EOF
-
 pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
 
 ./bin/powerapi \
@@ -65,5 +68,5 @@ pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /home/ubuntu/powerapi_proxy_1.txt \
+      --file /home/ubuntu/powerapi_proxy.txt \
       duration 900 & # 15 min
