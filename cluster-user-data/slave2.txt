@@ -21,7 +21,6 @@ sudo cp LOG8415-project/mysql-config-files/slave2-mysqld.cnf /etc/mysql/mysql.co
 sudo systemctl restart mysql
 
 # start powerapi on boot
-
 cat << EOF > powerapi.sh
 #!/bin/bash
 pid=$(pidof mysqld')
@@ -42,6 +41,10 @@ cd /powerapi-cli-4.2.1
       --file /home/ubuntu/powerapi_slave2_2.txt \
       duration 900 &
 EOF
+
+chmod +x powerapi.sh
+
+crontab -l | { cat; echo "@reboot /powerapi.sh"; } | crontab -
 
 sudo mysql -e "STOP SLAVE;"
 sudo mysql -e "CHANGE MASTER TO MASTER_HOST='10.84.15.10', MASTER_USER='slave', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=661"

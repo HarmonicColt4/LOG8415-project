@@ -21,7 +21,6 @@ sudo cp LOG8415-project/mysql-config-files/slave1-mysqld.cnf /etc/mysql/mysql.co
 sudo systemctl restart mysql
 
 # start powerapi on boot
-
 cat << EOF > powerapi.sh
 #!/bin/bash
 pid=$(pidof mysqld')
@@ -43,7 +42,7 @@ cd /powerapi-cli-4.2.1
       duration 900 &
 EOF
 
-chmod +x proxy.sh
+chmod +x powerapi.sh
 
 crontab -l | { cat; echo "@reboot /powerapi.sh"; } | crontab -
 
