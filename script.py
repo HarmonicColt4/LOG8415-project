@@ -58,13 +58,13 @@ with Connection(master_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql
     c.get('/tmp/powerapi_master.txt', local='results/powerapi_master_1.txt')
 
 with Connection(slave_1_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/tmp/powerapi_slave1.txt', local='results/powerapi_slave1_1.txt')
+    c.get('/tmp/powerapi_slave.txt', local='results/powerapi_slave1_1.txt')
 
 with Connection(slave_2_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/tmp/powerapi_slave2_.txt', local='results/powerapi_slave2_1.txt')
+    c.get('/tmp/powerapi_slave.txt', local='results/powerapi_slave2_1.txt')
 
 with Connection(proxy_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/tmp/powerapi_proxy_.txt', local='results/powerapi_proxy_1.txt')
+    c.get('/tmp/powerapi_proxy.txt', local='results/powerapi_proxy_1.txt')
 
 print("Adjusting security group rules for gatekeeper cloud pattern and reboot instances")
 mysql_ec2_helper.adjust_security_group_rules_with_gatekeeper()
@@ -90,10 +90,10 @@ with Connection(master_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql
     c.get('/tmp/powerapi_master.txt', local='results/powerapi_master_2.txt')
 
 with Connection(slave_1_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/tmp/powerapi_slave1.txt', local='results/powerapi_slave1_2.txt')
+    c.get('/tmp/powerapi_slave.txt', local='results/powerapi_slave1_2.txt')
 
 with Connection(slave_2_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/tmp/powerapi_slave2.txt', local='results/powerapi_slave2_2.txt')
+    c.get('/tmp/powerapi_slave.txt', local='results/powerapi_slave2_2.txt')
 
 with Connection(proxy_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
     c.get('/tmp/powerapi_proxy.txt', local='results/powerapi_proxy_2.txt')

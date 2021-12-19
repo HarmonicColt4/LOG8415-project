@@ -67,29 +67,42 @@ async def tcp_client(HOST, PORT):
             await asyncio.sleep(15)
             pass
 
+    print('Clearing table')
+    time.sleep(3)
+
     # clear table
     await clear_table(reader, writer)
+    time.sleep(3)
 
     # read data file
-    with open('test.csv', 'r') as f:
+    with open('people.csv', 'r') as f:
         people = f.readlines()
+
+    print('Loading data')
+    time.sleep(3)
 
     # insert data to db
     for person in people:
         await run_insert_person(reader, writer, person)
 
-    # delay 5s
-    time.sleep(5)
+    # delay 20s
+    time.sleep(20)
+
+    print('Performing select statements')
+    time.sleep(3)
 
     # retrieve data from db
     for mode in ['direct hit', 'random', 'ping']:
         await change_mode(reader, writer, mode)
         
+        # delay 20s
+        time.sleep(20)
+
         for person in people:
             await run_read_person(reader, writer, person)
 
-        # delay 5s
-        time.sleep(5)        
+    print('Clearing table')
+    time.sleep(3)
 
     # clear table
     await clear_table(reader, writer)
