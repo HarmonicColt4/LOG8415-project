@@ -62,6 +62,8 @@ python3 main.py &
 # launch powerapi
 pid=$(ps aux | grep "python3.*main\.py" | awk 'NR==1{ print $2 }')
 
+cd /powerapi-cli-4.2.1
+
 ./bin/powerapi \
     modules procfs-cpu-simple \
     monitor \
