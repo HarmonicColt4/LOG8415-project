@@ -1,3 +1,4 @@
+import invoke
 import client
 import mysql_ec2_helper
 import boto3
@@ -26,11 +27,27 @@ if not os.path.exists('results'):
 
 mysql_ec2_helper.deploy_standalone()
 mysql_ec2_helper.deploy_cluster()
-mysql_ec2_helper.deploy_proxy()
 
 print("Waiting for instances to initialize and complete sysbench run")
 
-time.sleep(300)
+time.sleep(120)
+
+while True:
+    try:
+        master_ip = find_instance_ip('master')[0]
+        with Connection(master_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
+            while True:
+                try:
+                    c.run('test -f /tmp/powerapi_master.txt')
+                    break
+                except invoke.exceptions.UnexpectedExit:
+                    time.sleep(15)
+
+        break
+    except (TimeoutError, IndexError):
+        time.sleep(15)
+
+mysql_ec2_helper.deploy_proxy()
 
 standalone_ip = find_instance_ip('standalone')[0]
 print("Getting results from standalone instance")
@@ -47,12 +64,11 @@ print("Launching client")
 time.sleep(3)
 client.main('proxy', 5001)
 
-master_ip = find_instance_ip('master')[0]
+print("Getting results from instances")
 slave_1_ip = find_instance_ip('slave')[0]
 slave_2_ip = find_instance_ip('slave')[1]
 proxy_ip = find_instance_ip('proxy')[0]
 
-print("Getting results from instances")
 with Connection(master_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
     c.get('/tmp/benchmark_replication.txt', local='results/benchmark_replication.txt')
     c.get('/tmp/powerapi_master.txt', local='results/powerapi_master_1.txt')
@@ -101,4 +117,4 @@ with Connection(proxy_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.
 with Connection(gatekeeper_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
     c.get('/tmp/powerapi_gatekeeper.txt', local='results/powerapi_gatekeeper.txt')
 
-mysql_ec2_helper.stop_all_instances()
+mysql_ec2_helper.cleanup()

@@ -308,6 +308,8 @@ def create_cluster_instances():
 def create_vpc():
     vpc = ec2.create_vpc(CidrBlock='10.84.0.0/16')
 
+    time.sleep(2)
+
     # assign a name to our VPC
     vpc.create_tags(Tags=[{"Key": "Name", "Value": "mysql"}])
     vpc.wait_until_available()
