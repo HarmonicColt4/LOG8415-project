@@ -21,7 +21,6 @@ def find_instance_ip(name_tag):
     
     return ip
 
-
 if not os.path.exists('results'):
     os.makedirs('results')
 
@@ -48,9 +47,6 @@ print("Launching client")
 time.sleep(3)
 client.main('proxy', 5001)
 
-# add delay for gatekeeper
-time.sleep(180)
-
 master_ip = find_instance_ip('master')[0]
 slave_1_ip = find_instance_ip('slave')[0]
 slave_2_ip = find_instance_ip('slave')[1]
@@ -58,17 +54,17 @@ proxy_ip = find_instance_ip('proxy')[0]
 
 print("Getting results from instances")
 with Connection(master_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/benchmark_replication.txt', local='results/benchmark_replication.txt')
-    c.get('/home/ubuntu/powerapi_master.txt', local='results/powerapi_master_1.txt')
+    c.get('/tmp/benchmark_replication.txt', local='results/benchmark_replication.txt')
+    c.get('/tmp/powerapi_master.txt', local='results/powerapi_master_1.txt')
 
 with Connection(slave_1_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/powerapi_slave1.txt', local='results/powerapi_slave1_1.txt')
+    c.get('/tmp/powerapi_slave1.txt', local='results/powerapi_slave1_1.txt')
 
 with Connection(slave_2_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/powerapi_slave2_.txt', local='results/powerapi_slave2_1.txt')
+    c.get('/tmp/powerapi_slave2_.txt', local='results/powerapi_slave2_1.txt')
 
 with Connection(proxy_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/powerapi_proxy_.txt', local='results/powerapi_proxy_1.txt')
+    c.get('/tmp/powerapi_proxy_.txt', local='results/powerapi_proxy_1.txt')
 
 print("Adjusting security group rules for gatekeeper cloud pattern and reboot instances")
 mysql_ec2_helper.adjust_security_group_rules_with_gatekeeper()
@@ -91,18 +87,18 @@ gatekeeper_ip = find_instance_ip('gatekeeper')[0]
 
 print("Getting results from instances")
 with Connection(master_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/powerapi_master.txt', local='results/powerapi_master_2.txt')
+    c.get('/tmp/powerapi_master.txt', local='results/powerapi_master_2.txt')
 
 with Connection(slave_1_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/powerapi_slave1.txt', local='results/powerapi_slave1_2.txt')
+    c.get('/tmp/powerapi_slave1.txt', local='results/powerapi_slave1_2.txt')
 
 with Connection(slave_2_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/powerapi_slave2.txt', local='results/powerapi_slave2_2.txt')
+    c.get('/tmp/powerapi_slave2.txt', local='results/powerapi_slave2_2.txt')
 
 with Connection(proxy_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/powerapi_proxy.txt', local='results/powerapi_proxy_2.txt')
+    c.get('/tmp/powerapi_proxy.txt', local='results/powerapi_proxy_2.txt')
 
 with Connection(gatekeeper_ip, user='ubuntu', connect_kwargs={'key_filename': 'mysql.pem'}) as c:
-    c.get('/home/ubuntu/powerapi_gatekeeper.txt', local='results/powerapi_gatekeeper.txt')
+    c.get('/tmp/powerapi_gatekeeper.txt', local='results/powerapi_gatekeeper.txt')
 
 mysql_ec2_helper.stop_all_instances()

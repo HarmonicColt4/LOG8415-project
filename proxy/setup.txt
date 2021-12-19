@@ -41,8 +41,8 @@ cd /powerapi-cli-4.2.1
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /home/ubuntu/powerapi_proxy.txt \
-      duration 900 &
+      --file /tmp/powerapi_proxy.txt \
+      duration 7200 &
 EOF
 
 chmod +x proxy.sh
@@ -68,5 +68,5 @@ pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /home/ubuntu/powerapi_proxy.txt \
-      duration 900 & # 15 min
+      --file /tmp/powerapi_proxy.txt \
+      duration 7200 & # 15 min

@@ -42,8 +42,8 @@ cd /powerapi-cli-4.2.1
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /home/ubuntu/powerapi_master.txt \
-      duration 900 &
+      --file /tmp/powerapi_master.txt \
+      duration 7200 &
 EOF
 
 chmod +x powerapi.sh
@@ -93,7 +93,7 @@ sysbench \
 --time=60 \
 --events=0 \
 --report-interval=1 \
-/usr/share/sysbench/oltp_read_write.lua run > /home/ubuntu/benchmark_replication.txt
+/usr/share/sysbench/oltp_read_write.lua run > /tmp/benchmark_replication.txt
 
 # create table for testing
 sudo mysql -e 'use project;
@@ -130,5 +130,5 @@ pid=$(pidof mysqld)
     monitor \
       --frequency 1000 \
       --pids $pid \
-      --file /home/ubuntu/powerapi_master.txt \
-      duration 900 & # 15 min
+      --file /tmp/powerapi_master.txt \
+      duration 7200 & # 15 min
