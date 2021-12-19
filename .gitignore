@@ -4,3 +4,4 @@ start-instance.py
 test.py
 test.csv
 results/
+__pycache__/
