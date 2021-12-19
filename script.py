@@ -86,15 +86,15 @@ print("Adjusting security group rules for gatekeeper cloud pattern and reboot in
 mysql_ec2_helper.adjust_security_group_rules_with_gatekeeper()
 
 print('Reboot cluster')
-mysql_ec2_helper.reboot_instance(['master', 'slave'])
+mysql_ec2_helper.reboot_instances(['master', 'slave'])
 time.sleep(5)
 
 print('Reboot proxy')
-mysql_ec2_helper.reboot_instance(['proxy'])
+mysql_ec2_helper.reboot_instances(['proxy'])
 time.sleep(5)
 
 print('Reboot gatekeeper')
-mysql_ec2_helper.reboot_instance(['gatekeeper'])
+mysql_ec2_helper.reboot_instances(['gatekeeper'])
 time.sleep(60)
 
 client.main('gatekeeper')

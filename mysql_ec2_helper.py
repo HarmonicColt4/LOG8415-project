@@ -314,7 +314,7 @@ def adjust_security_group_rules_with_gatekeeper():
         },
     ])
 
-def reboot_instance(name_tags):
+def reboot_instances(name_tags):
     response = find_instances(name_tags)
     instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running']
 
@@ -328,8 +328,8 @@ def terminate_instance(name_tag):
     instance.terminate()
     instance.wait_until_terminated()
 
-def stop_all_instances():
-    response = find_instances(['master', 'slave', 'proxy', 'gatekeeper'])
+def stop_instances(name_tags):
+    response = find_instances(name_tags)
 
     instances_ids = [i['InstanceId'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running']
 
