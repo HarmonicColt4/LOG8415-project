@@ -179,7 +179,7 @@ def adjust_security_group_rules_with_gatekeeper():
 
         security_group = ec2.SecurityGroup(sg_id)
         security_group.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=22, ToPort=22)
-        security_group.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=5002, ToPort=5002)
+        security_group.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=5001, ToPort=5001)
 
     else:
         sg_id = response['SecurityGroups'][0]['GroupId']
@@ -230,7 +230,10 @@ def adjust_security_group_rules_with_gatekeeper():
     # add new rules
     security_group.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=22, ToPort=22)
     security_group.authorize_ingress(CidrIp='10.84.15.21/32', IpProtocol='tcp', FromPort=5001, ToPort=5001)
-    security_group.authorize_ingress(CidrIp='10.84.15.0/24', IpProtocol='tcp', FromPort=3306, ToPort=3306)
+    security_group.authorize_ingress(CidrIp='10.84.15.10/32', IpProtocol='tcp', FromPort=3306, ToPort=3306)
+    security_group.authorize_ingress(CidrIp='10.84.15.11/32', IpProtocol='tcp', FromPort=3306, ToPort=3306)
+    security_group.authorize_ingress(CidrIp='10.84.15.12/32', IpProtocol='tcp', FromPort=3306, ToPort=3306)
+    security_group.authorize_ingress(CidrIp='10.84.15.20/32', IpProtocol='tcp', FromPort=3306, ToPort=3306)
     security_group.authorize_ingress(CidrIp='10.84.15.0/24', IpProtocol='icmp', FromPort=-1, ToPort=-1)
     security_group.authorize_egress(IpPermissions=[
         {
@@ -251,7 +254,46 @@ def adjust_security_group_rules_with_gatekeeper():
             'IpProtocol': 'tcp',
             'IpRanges': [
                 {
-                    'CidrIp': '10.84.15.0/24',
+                    'CidrIp': '10.84.15.10/32',
+                    'Description': 'mysql'
+                },
+            ],
+            'ToPort': 3306
+        },
+    ])
+    security_group.authorize_egress(IpPermissions=[
+        {
+            'FromPort': 3306,
+            'IpProtocol': 'tcp',
+            'IpRanges': [
+                {
+                    'CidrIp': '10.84.15.11/32',
+                    'Description': 'mysql'
+                },
+            ],
+            'ToPort': 3306
+        },
+    ])
+    security_group.authorize_egress(IpPermissions=[
+        {
+            'FromPort': 3306,
+            'IpProtocol': 'tcp',
+            'IpRanges': [
+                {
+                    'CidrIp': '10.84.15.12/32',
+                    'Description': 'mysql'
+                },
+            ],
+            'ToPort': 3306
+        },
+    ])
+    security_group.authorize_egress(IpPermissions=[
+        {
+            'FromPort': 3306,
+            'IpProtocol': 'tcp',
+            'IpRanges': [
+                {
+                    'CidrIp': '10.84.15.20/32',
                     'Description': 'mysql'
                 },
             ],

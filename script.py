@@ -62,7 +62,7 @@ mysql_ec2_helper.deploy_gatekeeper()
 
 print("Launching client")
 time.sleep(3)
-client.main('proxy', 5001)
+client.main('proxy')
 
 print("Getting results from instances")
 slave_1_ip = find_instance_ip('slave')[0]
@@ -97,7 +97,7 @@ print('Reboot gatekeeper')
 mysql_ec2_helper.reboot_instance(['gatekeeper'])
 time.sleep(60)
 
-client.main('gatekeeper', 5002)
+client.main('gatekeeper')
 
 gatekeeper_ip = find_instance_ip('gatekeeper')[0]
 

@@ -4,7 +4,7 @@ import pickle
 import time
 
 def extract_responder_name(response):
-    ip = response[response.find('Request') + len('Request performed by '): response.rfind('"')]
+    ip = response[response.find('Request') + len('Request performed by '):]
 
     return 'master' if ip[-1] == '0' else 'slave 1' if ip[-1] == '1' else 'slave 2'
 
@@ -42,7 +42,7 @@ async def run_read_person(reader, writer, person):
 
     print(f'Received: {response!r}')
 
-    return  extract_responder_name(response) + ',' + str(time_ms) + '\n'
+    return extract_responder_name(response) + ',' + str(time_ms) + '\n'
 
 async def change_mode(reader, writer, mode):
     obj = {'type': 'mode', 'statement': mode}
@@ -67,12 +67,25 @@ async def clear_table(reader, writer):
     data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
-async def tcp_client(HOST, PORT):
+async def tcp_client(server):
+    client = boto3.client('ec2')
+    
+    response = client.describe_instances( Filters=[
+            {
+                'Name': 'tag:Name',
+                'Values': [
+                    server
+                ]
+            }
+        ])
+
+    server_ip = [i['PublicIpAddress'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
+
     while True:
         try:
             print('Wait for server to become available...', end=' ')
 
-            reader, writer = await asyncio.open_connection(HOST, PORT)
+            reader, writer = await asyncio.open_connection(server_ip, 5001)
             
             print('Connected!')
             break
@@ -111,9 +124,7 @@ async def tcp_client(HOST, PORT):
 
         response_times = [await run_read_person(reader, writer, person) for person in people]
 
-        name = "proxy" if PORT == 5001 else "gatekeeper"
-
-        with open(f'results/{name}_{mode}.txt', 'w') as w:
+        with open(f'results/{server}_{mode}.txt', 'w') as w:
             w.writelines(response_times)
 
     print('Clearing table')
@@ -126,25 +137,10 @@ async def tcp_client(HOST, PORT):
     writer.close()
     await writer.wait_closed()
 
-def main(server, port):
-    client = boto3.client('ec2')
-    
-    response = client.describe_instances( Filters=[
-            {
-                'Name': 'tag:Name',
-                'Values': [
-                    server
-                ]
-            }
-        ])
-
-    server_ip = [i['PublicIpAddress'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
-
-    HOST = server_ip    # The server's hostname or IP address
-    PORT = port        # The port used by the server
-
-    asyncio.run(tcp_client(HOST, PORT))
+def main(server):
+    asyncio.run(tcp_client(server))
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv[1], int(sys.argv[2]))
+    server = sys.argv[1]
+    main(server)
