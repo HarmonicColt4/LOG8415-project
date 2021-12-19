@@ -61,7 +61,7 @@ pip install -r requirements.txt
 python3 main.py delay &
 
 # launch powerapi
-pid=$(ps aux | grep "python3.*main\.py$" | awk 'NR==1{ print $2 }')
+pid=$(ps aux | grep "python3.*main\.py" | awk 'NR==1{ print $2 }')
 
 ./bin/powerapi \
     modules procfs-cpu-simple \
