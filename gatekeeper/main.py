@@ -1,6 +1,6 @@
 import asyncio
 import pickle
-import time
+import re
 
 HOST = ''
 PORT = 5002
@@ -11,11 +11,34 @@ TRUSTED_HOST_PORT = 5001
 proxy_reader = None
 proxy_writer = None
 
-async def process_request(request):
-    proxy_writer.write(request)
-    await proxy_writer.drain()
+selectValidator = re.compile(r"(^select \* from people where seq = \d{1,};$)")
+insertValidator = re.compile(r"(^insert into people values \(\s*\d{1,}\s*,\s*'\w+[\w|\s]*'\s*,\s*'\w+[\w|\s]*'\s*,\s*\d{1,}\s*,\s*'\w+[\w|\s]*'\s*,\s*'[\(]?\d{3}[\)]?[-|\s]?\d{3}[-|\s]?\d{4}'\s*,\s*'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}'\s*,\s*'\w+[\w|\s]*'\s*,\s*'\d{1,2}\/\d{1,2}\/\d{4}'\s*,\s*'\w+[\w|\s]*'\s*\);$)")
 
-    response = await proxy_reader.read(1024)
+def is_valid(request):
+    obj = pickle.loads(request)
+    type = obj['type']
+    statement = obj['statement']
+
+    if type not in ['select', 'insert', 'delete', 'mode']:
+        return False
+
+    statement = statement.lower()
+    
+    if statement.startswith('insert '):
+        return bool(insertValidator.match(statement))
+    if statement.startswith('select '):
+        return bool(selectValidator.match(statement))
+    return statement.startswith('delete ') or statement in ['direct hit', 'random', 'ping']
+
+async def process_request(request):
+    if is_valid(request):
+        proxy_writer.write(request)
+        await proxy_writer.drain()
+
+        response = await proxy_reader.read(1024)
+
+    else:
+        response = b'Invalid request'
     
     return response
 

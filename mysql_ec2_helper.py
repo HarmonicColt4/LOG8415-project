@@ -179,7 +179,7 @@ def adjust_security_group_rules_with_gatekeeper():
 
         security_group = ec2.SecurityGroup(sg_id)
         security_group.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=22, ToPort=22)
-        security_group.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=5001, ToPort=5001)
+        security_group.authorize_ingress(CidrIp='0.0.0.0/0', IpProtocol='tcp', FromPort=5002, ToPort=5002)
 
     else:
         sg_id = response['SecurityGroups'][0]['GroupId']

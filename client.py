@@ -81,11 +81,13 @@ async def tcp_client(server):
 
     server_ip = [i['PublicIpAddress'] for r in response['Reservations'] for i in r['Instances'] if i['State']['Name'] == 'running'][0]
 
+    port = 5001 if server == 'proxy' else 5002
+
     while True:
         try:
             print('Wait for server to become available...', end=' ')
 
-            reader, writer = await asyncio.open_connection(server_ip, 5001)
+            reader, writer = await asyncio.open_connection(server_ip, port)
             
             print('Connected!')
             break
