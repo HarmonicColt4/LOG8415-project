@@ -39,7 +39,7 @@ cd /powerapi-cli-4.2.1
 ./bin/powerapi \
     modules procfs-cpu-simple \
     monitor \
-      --frequency 1000 \
+      --frequency 500 \
       --pids $pid \
       --file /tmp/powerapi_gatekeeper.txt &
 EOF
