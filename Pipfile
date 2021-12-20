@@ -8,6 +8,7 @@ boto3 = {extras = ["crt"], version = "*"}
 fabric = "*"
 jupyterlab = "*"
 nest-asyncio = "*"
+matplotlib = "*"
 
 [dev-packages]
 
