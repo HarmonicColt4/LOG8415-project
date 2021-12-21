@@ -6,3 +6,4 @@ test.csv
 results/
 __pycache__/
 .ipynb_checkpoints/
+powerapi-plots
